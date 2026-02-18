@@ -1,0 +1,849 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Police Care - ระบบสัมภาษณ์อัตโนมัติ</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { font-family: 'Sarabun', sans-serif; }
+        .bg-police-red { background-color: #8B0000; }
+        .text-police-red { color: #8B0000; }
+        .border-police-red { border-color: #8B0000; }
+        
+        /* Video Container */
+        .video-container {
+            position: relative;
+            background: #000;
+            border-radius: 1rem;
+            overflow: hidden;
+        }
+        
+        .video-placeholder {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 400px;
+            background: linear-gradient(135deg, #1a202c 0%, #2d3748 100%);
+        }
+        
+        /* Button Animations */
+        .btn-yes { background: linear-gradient(135deg, #10b981 0%, #059669 100%); }
+        .btn-no { background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); }
+        .btn-help { background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); }
+        
+        /* Fade animations */
+        .fade-in { animation: fadeIn 0.3s ease-in; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        /* Pulse animation for help button */
+        .pulse-help { animation: pulse 2s infinite; }
+        @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen flex flex-col">
+    <!-- Header -->
+    <header class="bg-white shadow-md border-t-4 border-police-red sticky top-0 z-50">
+        <div class="container mx-auto px-6 py-4 flex justify-between items-center">
+            <div class="flex items-center gap-3">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/8f/Emblem_of_the_Royal_Thai_Police.svg/1200px-Emblem_of_the_Royal_Thai_Police.svg.png" alt="RTP" class="h-10 w-auto">
+                <div>
+                    <span class="font-extrabold text-police-red text-lg">POLICE CARE</span>
+                    <span class="text-[10px] text-gray-500 font-bold">AUTO-INTERVIEW</span>
+                </div>
+            </div>
+            <button onclick="exitInterview()" class="text-gray-500 hover:text-red-600 transition">
+                <i class="fas fa-times text-xl"></i>
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-grow container mx-auto px-6 py-8">
+        <!-- Start Screen -->
+        <div id="startScreen" class="max-w-4xl mx-auto">
+            <div class="bg-white rounded-2xl shadow-xl p-8 text-center">
+                <div class="mb-8">
+                    <div class="w-24 h-24 bg-police-red rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-hands text-white text-3xl"></i>
+                    </div>
+                    <h1 class="text-3xl font-bold text-gray-900 mb-4">ระบบสัมภาษณ์อัตโนมัติ</h1>
+                    <p class="text-gray-600 text-lg mb-8">
+                        ระบบจะถามคำถามผ่านภาษามือ และสร้างใบแจ้งความให้โดยอัตโนมัติ<br>
+                        <span class="text-police-red font-bold">กรุณาใช้ท่ามือตามที่ล่ามแสดง</span>
+                    </p>
+                </div>
+                
+                <button onclick="startInterview()" class="bg-police-red text-white px-12 py-4 rounded-xl text-lg font-bold hover:bg-red-800 transition transform hover:scale-105 shadow-lg">
+                    <i class="fas fa-play mr-3"></i>
+                    เริ่มการสัมภาษณ์
+                </button>
+                
+                <div class="mt-8 grid grid-cols-1 md:grid-cols-3 gap-4 text-sm text-gray-500">
+                    <div class="flex items-center gap-2">
+                        <i class="fas fa-clock text-police-red"></i>
+                        <span>ใช้เวลาประมาณ 3-5 นาที</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <i class="fas fa-video text-police-red"></i>
+                        <span>ต้องใช้กล้องถ่ายวิดีโอ</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <i class="fas fa-shield-alt text-police-red"></i>
+                        <span>ข้อมูลปลอดภัย</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Interview Screen -->
+        <div id="interviewScreen" class="hidden max-w-4xl mx-auto">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <!-- Video Section -->
+                <div class="lg:col-span-2">
+                    <div class="bg-white rounded-2xl shadow-xl p-6">
+                        <div class="video-container mb-6">
+                            <div class="video-placeholder">
+                                <div class="text-center text-white">
+                                    <i class="fas fa-video text-6xl mb-4 opacity-50"></i>
+                                    <p class="text-lg font-medium mb-2">กำลังเชื่อมต่อกับล่ามภาษามือ...</p>
+                                    <div class="flex justify-center gap-2">
+                                        <div class="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+                                        <div class="w-2 h-2 bg-green-400 rounded-full animate-pulse" style="animation-delay: 0.2s"></div>
+                                        <div class="w-2 h-2 bg-green-400 rounded-full animate-pulse" style="animation-delay: 0.4s"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Current Question -->
+                        <div class="bg-gray-50 rounded-xl p-6 mb-6">
+                            <div class="flex items-center gap-3 mb-3">
+                                <span class="bg-police-red text-white text-xs font-bold px-3 py-1 rounded-full">คำถามที่ <span id="questionNumber">1</span></span>
+                                <span class="text-sm text-gray-500">ประเภท: <span id="questionType">การคัดกรอง</span></span>
+                            </div>
+                            <h2 id="currentQuestion" class="text-2xl font-bold text-gray-900 mb-4">คุณต้องการแจ้งความเรื่อง ขโมย ใช่ไหม?</h2>
+                            <p id="questionSubtext" class="text-gray-600">กรุณาตอบด้วยท่ามือ หรือกดปุ่มด้านล่าง</p>
+                        </div>
+
+                        <!-- Response Buttons -->
+                        <div class="grid grid-cols-3 gap-4">
+                            <button onclick="answerYes()" class="btn-yes text-white py-6 rounded-xl font-bold text-lg hover:shadow-lg transition transform hover:scale-105">
+                                <i class="fas fa-check-circle text-2xl mb-2"></i>
+                                ใช่
+                            </button>
+                            <button onclick="answerNo()" class="btn-no text-white py-6 rounded-xl font-bold text-lg hover:shadow-lg transition transform hover:scale-105">
+                                <i class="fas fa-times-circle text-2xl mb-2"></i>
+                                ไม่ใช่
+                            </button>
+                            <button onclick="showHelp()" class="btn-help text-white py-6 rounded-xl font-bold text-lg hover:shadow-lg transition transform hover:scale-105 pulse-help">
+                                <i class="fas fa-question-circle text-2xl mb-2"></i>
+                                ไม่เข้าใจ
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sidebar -->
+                <div class="space-y-6">
+                    <!-- Progress -->
+                    <div class="bg-white rounded-2xl shadow-xl p-6">
+                        <h3 class="font-bold text-gray-900 mb-4 flex items-center gap-2">
+                            <i class="fas fa-tasks text-police-red"></i>
+                            ความคืบหน้า
+                        </h3>
+                        <div class="space-y-3">
+                            <div class="flex items-center gap-3">
+                                <div id="step1" class="w-8 h-8 rounded-full bg-green-500 text-white flex items-center justify-center font-bold text-sm">✓</div>
+                                <span class="text-sm font-medium">เริ่มการสัมภาษณ์</span>
+                            </div>
+                            <div class="flex items-center gap-3">
+                                <div id="step2" class="w-8 h-8 rounded-full bg-blue-500 text-white flex items-center justify-center font-bold text-sm">2</div>
+                                <span class="text-sm font-medium">การคัดกรอง</span>
+                            </div>
+                            <div class="flex items-center gap-3">
+                                <div id="step3" class="w-8 h-8 rounded-full bg-gray-300 text-white flex items-center justify-center font-bold text-sm">3</div>
+                                <span class="text-sm text-gray-500">การเก็บรายละเอียด</span>
+                            </div>
+                            <div class="flex items-center gap-3">
+                                <div id="step4" class="w-8 h-8 rounded-full bg-gray-300 text-white flex items-center justify-center font-bold text-sm">4</div>
+                                <span class="text-sm text-gray-500">สรุปข้อมูล</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Collected Info -->
+                    <div class="bg-white rounded-2xl shadow-xl p-6">
+                        <h3 class="font-bold text-gray-900 mb-4 flex items-center gap-2">
+                            <i class="fas fa-clipboard-list text-police-red"></i>
+                            ข้อมูลที่เก็บได้
+                        </h3>
+                        <div id="collectedInfo" class="space-y-2 text-sm">
+                            <div class="text-gray-500">ยังไม่มีข้อมูล...</div>
+                        </div>
+                    </div>
+
+                    <!-- Emergency Contact -->
+                    <div class="bg-red-50 border border-red-200 rounded-2xl p-6">
+                        <h3 class="font-bold text-red-800 mb-3 flex items-center gap-2">
+                            <i class="fas fa-phone-alt"></i>
+                            ติดต่อฉุกเฉิน
+                        </h3>
+                        <div class="space-y-2">
+                            <button onclick="callEmergency('191')" class="w-full bg-red-600 text-white py-3 rounded-lg font-bold hover:bg-red-700 transition">
+                                <i class="fas fa-phone mr-2"></i> โทร 191 (ตำรวจ)
+                            </button>
+                            <button onclick="callEmergency('1414')" class="w-full bg-blue-600 text-white py-3 rounded-lg font-bold hover:bg-blue-700 transition">
+                                <i class="fas fa-hands mr-2"></i> โทร 1414 (ล่ามภาษามือ)
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Help Modal -->
+        <div id="helpModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+            <div class="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[80vh] overflow-y-auto">
+                <div class="p-6">
+                    <div class="flex justify-between items-center mb-6">
+                        <h3 class="text-2xl font-bold text-gray-900">อธิบายท่ามือ</h3>
+                        <button onclick="closeHelp()" class="text-gray-500 hover:text-gray-700">
+                            <i class="fas fa-times text-xl"></i>
+                        </button>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <!-- Sign Examples -->
+                        <div>
+                            <h4 class="font-bold text-gray-900 mb-4">ท่ามือที่ใช้ในคำถาม</h4>
+                            <div class="space-y-4">
+                                <div class="bg-gray-50 rounded-lg p-4">
+                                    <div class="flex items-center gap-3 mb-2">
+                                        <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
+                                            <i class="fas fa-thumbs-up text-green-600"></i>
+                                        </div>
+                                        <span class="font-bold">ใช่</span>
+                                    </div>
+                                    <p class="text-sm text-gray-600">กำมือขึ้น หัวแม่มือชี้ขึ้น</p>
+                                </div>
+                                
+                                <div class="bg-gray-50 rounded-lg p-4">
+                                    <div class="flex items-center gap-3 mb-2">
+                                        <div class="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center">
+                                            <i class="fas fa-thumbs-down text-red-600"></i>
+                                        </div>
+                                        <span class="font-bold">ไม่ใช่</span>
+                                    </div>
+                                    <p class="text-sm text-gray-600">กำมือลง หัวแม่มือชี้ลง</p>
+                                </div>
+                                
+                                <div class="bg-gray-50 rounded-lg p-4">
+                                    <div class="flex items-center gap-3 mb-2">
+                                        <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
+                                            <i class="fas fa-question text-blue-600"></i>
+                                        </div>
+                                        <span class="font-bold">ไม่เข้าใจ</span>
+                                    </div>
+                                    <p class="text-sm text-gray-600">แม่มือทำเครื่องหมายคำถาม</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Visual Guide -->
+                        <div>
+                            <h4 class="font-bold text-gray-900 mb-4">คำแนะนำ</h4>
+                            <div class="space-y-3 text-sm text-gray-600">
+                                <div class="flex items-start gap-3">
+                                    <i class="fas fa-lightbulb text-yellow-500 mt-1"></i>
+                                    <p>ให้ใบหน้าชัดเจน แสงสว่างพอ</p>
+                                </div>
+                                <div class="flex items-start gap-3">
+                                    <i class="fas fa-hand-paper text-blue-500 mt-1"></i>
+                                    <p>ใช้ท่ามือชัดเจน ไม่เร็วเกินไป</p>
+                                </div>
+                                <div class="flex items-start gap-3">
+                                    <i class="fas fa-eye text-green-500 mt-1"></i>
+                                    <p>มองตรงกล้องเวลาตอบ</p>
+                                </div>
+                                <div class="flex items-start gap-3">
+                                    <i class="fas fa-volume-up text-purple-500 mt-1"></i>
+                                    <p>ถ้าไม่ได้ยินเสียง ให้กดปุ่มช่วยเหลือ</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-6 flex justify-end">
+                        <button onclick="closeHelp()" class="bg-police-red text-white px-6 py-3 rounded-lg font-bold hover:bg-red-800 transition">
+                            <i class="fas fa-arrow-left mr-2"></i>
+                            กลับไปตอบคำถาม
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sign Language Help Screen -->
+        <div id="signHelpScreen" class="hidden max-w-4xl mx-auto">
+            <!-- Content will be dynamically inserted -->
+        </div>
+
+        <!-- Summary Screen -->
+        <div id="summaryScreen" class="hidden max-w-4xl mx-auto">
+            <div class="bg-white rounded-2xl shadow-xl p-8">
+                <div class="text-center mb-8">
+                    <div class="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-check-circle text-green-600 text-3xl"></i>
+                    </div>
+                    <h1 class="text-3xl font-bold text-gray-900 mb-4">สรุปข้อมูลการแจ้งความ</h1>
+                    <p class="text-gray-600 text-lg">ระบบได้รวบรวมข้อมูลเป็นใบแจ้งความ กรุณาตรวจสอบความถูกต้อง</p>
+                </div>
+                
+                <!-- Report Content -->
+                <div class="bg-gray-50 rounded-xl p-6 mb-6">
+                    <div id="reportContent" class="space-y-4">
+                        <!-- Will be populated by JavaScript -->
+                    </div>
+                </div>
+                
+                <!-- Action Buttons -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <button onclick="editReport()" class="bg-gray-200 text-gray-700 py-4 rounded-xl font-bold hover:bg-gray-300 transition">
+                        <i class="fas fa-edit mr-2"></i>
+                        แก้ไขข้อมูล
+                    </button>
+                    <button onclick="submitReport()" class="bg-police-red text-white py-4 rounded-xl font-bold hover:bg-red-800 transition">
+                        <i class="fas fa-paper-plane mr-2"></i>
+                        ส่งใบแจ้งความ
+                    </button>
+                </div>
+                
+                <div class="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                    <p class="text-sm text-blue-800">
+                        <i class="fas fa-info-circle mr-2"></i>
+                        ใบแจ้งความนี้จะถูกส่งไปยังเจ้าหน้าที่ตำรวจเพื่อดำเนินการต่อไป
+                    </p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // 1. โครงสร้างข้อมูล (Data Structure)
+        const SCENARIOS = {
+            theft: {
+                title: 'แจ้งเหตุลักทรัพย์',
+                icon: 'fa-mask',
+                color: 'orange',
+                questions: [
+                    { 
+                        id: 1, 
+                        text: "คุณเห็นหน้าคนร้ายไหม?", 
+                        explain: "ท่ามือ: ชี้ไปที่ตา แล้วทำท่ามองหา",
+                        videoUrl: "videos/theft/saw_suspect.mp4"
+                    },
+                    { 
+                        id: 2, 
+                        text: "มีกล้องวงจรปิดไหม?", 
+                        explain: "ท่ามือ: ทำท่ากล้องวงจรด้วยนิ้วมือ",
+                        videoUrl: "videos/theft/has_cctv.mp4"
+                    },
+                    { 
+                        id: 3, 
+                        text: "มีผู้บาดเจ็บไหม?", 
+                        explain: "ท่ามือ: ทำท่าบาดเจ็บ จับบริเวณที่เจ็บ",
+                        videoUrl: "videos/theft/is_injured.mp4"
+                    },
+                    { 
+                        id: 4, 
+                        text: "คนร้ายใช้อาวุธไหม?", 
+                        explain: "ท่ามือ: ทำท่าถืออาวุธ หรือทำท่าขู่อีกฝ่าย",
+                        videoUrl: "videos/theft/weapon_used.mp4"
+                    }
+                ]
+            },
+            accident: {
+                title: 'อุบัติเหตุรถชน',
+                icon: 'fa-car-burst',
+                color: 'blue',
+                questions: [
+                    { 
+                        id: 1, 
+                        text: "มีผู้บาดเจ็บไหม?", 
+                        explain: "ท่ามือ: ทำท่าบาดเจ็บ จับบริเวณที่เจ็บ",
+                        videoUrl: "videos/accident/has_injury.mp4"
+                    },
+                    { 
+                        id: 2, 
+                        text: "รถเสียหายหนักไหม?", 
+                        explain: "ท่ามือ: ทำท่ารถพัง หรือทำท่าชนแรง",
+                        videoUrl: "videos/accident/vehicle_damage.mp4"
+                    },
+                    { 
+                        id: 3, 
+                        text: "เป็นรถชนแล้วหนีไหม?", 
+                        explain: "ท่ามือ: ทำท่ารถวิ่งหนี",
+                        videoUrl: "videos/accident/hit_and_run.mp4"
+                    },
+                    { 
+                        id: 4, 
+                        text: "ต้องการรถพยาบาลไหม?", 
+                        explain: "ท่ามือ: ทำท่าเรียกรถพยาบาล",
+                        videoUrl: "videos/accident/need_ambulance.mp4"
+                    }
+                ]
+            },
+            assault: {
+                title: 'การทำร้ายร่างกาย',
+                icon: 'fa-user-injured',
+                color: 'red',
+                questions: [
+                    { 
+                        id: 1, 
+                        text: "ต้องการความช่วยเหลือทางการแพทย์ไหม?", 
+                        explain: "ท่ามือ: ทำท่าเรียกหมอ หรือจับบริเวณที่เจ็บ",
+                        videoUrl: "videos/assault/needs_medical.mp4"
+                    },
+                    { 
+                        id: 2, 
+                        text: "มีอาวุธประกอบภัยไหม?", 
+                        explain: "ท่ามือ: ทำท่าถืออาวุธ หรือทำท่าขู่อีกฝ่าย",
+                        videoUrl: "videos/assault/weapon_involved.mp4"
+                    },
+                    { 
+                        id: 3, 
+                        text: "มีผู้ก่อเหตุหลายคนไหม?", 
+                        explain: "ท่ามือ: ชี้นิ้วหลายๆ แล้วทำท่าทำร้าย",
+                        videoUrl: "videos/assault/multiple_attackers.mp4"
+                    },
+                    { 
+                        id: 4, 
+                        text: "มีพยานเห็นเหตุการณ์ไหม?", 
+                        explain: "ท่ามือ: ชี้ไปรอบๆ แล้วทำท่ามองเห็น",
+                        videoUrl: "videos/assault/witness_present.mp4"
+                    }
+                ]
+            },
+            fire: {
+                title: 'ไฟไหม้',
+                icon: 'fa-fire',
+                color: 'red',
+                questions: [
+                    { 
+                        id: 1, 
+                        text: "มีคนติดอยู่ในอาคารไหม?", 
+                        explain: "ท่ามือ: ทำท่าคนติดอยู่ และทำท่าไฟ",
+                        videoUrl: "videos/fire/people_trapped.mp4"
+                    },
+                    { 
+                        id: 2, 
+                        text: "เป็นอาคารพักอาศัยไหม?", 
+                        explain: "ท่ามือ: ทำท่าบ้าน และทำท่าไฟ",
+                        videoUrl: "videos/fire/building_type.mp4"
+                    },
+                    { 
+                        id: 3, 
+                        text: "มีเสียงระเบิดไหม?", 
+                        explain: "ท่ามือ: ทำท่าระเบิด ปิดหูแล้วทำท่าเสียงดัง",
+                        videoUrl: "videos/fire/explosion.mp4"
+                    },
+                    { 
+                        id: 4, 
+                        text: "ต้องการรถดับเพลิงไหม?", 
+                        explain: "ท่ามือ: ทำท่ารถดับเพลิง",
+                        videoUrl: "videos/fire/need_fire_truck.mp4"
+                    }
+                ]
+            },
+            missing: {
+                title: 'บุคคลสูญหาย',
+                icon: 'fa-person-walking',
+                color: 'purple',
+                questions: [
+                    { 
+                        id: 1, 
+                        text: "เป็นเด็กสูญหายไหม?", 
+                        explain: "ท่ามือ: ทำท่าเด็ก และทำท่าหายไป",
+                        videoUrl: "videos/missing/child_missing.mp4"
+                    },
+                    { 
+                        id: 2, 
+                        text: "มีโรคประจำตัวไหม?", 
+                        explain: "ท่ามือ: ทำท่าป่วย หรือทำท่ากินยา",
+                        videoUrl: "videos/missing/medical_condition.mp4"
+                    },
+                    { 
+                        id: 3, 
+                        text: "เห็นครั้งสุดท้ายเมื่อเมื่อไหร่?", 
+                        explain: "ท่ามือ: ทำท่าดูนาฬิกา และทำท่ามองหา",
+                        videoUrl: "videos/missing/last_seen.mp4"
+                    },
+                    { 
+                        id: 4, 
+                        text: "มีความต้องการพิเศษไหม?", 
+                        explain: "ท่ามือ: ทำท่าต้องการความช่วยเหลือพิเศษ",
+                        videoUrl: "videos/missing/special_needs.mp4"
+                    }
+                ]
+            }
+        };
+
+        // 2. ตัวแปรจัดการสถานะ (State Management)
+        let currentScenario = null;
+        let currentQIndex = 0;
+        let reportHistory = [];
+
+        // 3. ขั้นตอนการทำงาน (Process Flow)
+        
+        // Step 1: การเริ่มต้น (Initialization)
+        function startReport(scenarioType) {
+            // ดึงข้อมูลหมวดที่เลือก
+            currentScenario = SCENARIOS[scenarioType];
+            
+            // รีเซ็ตตัวแปร
+            currentQIndex = 0;
+            reportHistory = [];
+            
+            // เปลี่ยนหน้าจอ
+            document.getElementById('startScreen').classList.add('hidden');
+            document.getElementById('interviewScreen').classList.remove('hidden');
+            
+            // เริ่มการสัมภาษณ์
+            renderQuestion();
+        }
+
+        // Step 2: การวนลูปคำถาม (Interview Loop)
+        function renderQuestion() {
+            if (currentQIndex >= currentScenario.questions.length) {
+                showSummary();
+                return;
+            }
+            
+            const question = currentScenario.questions[currentQIndex];
+            
+            // อัปเดตข้อความคำถาม
+            document.getElementById('questionNumber').textContent = currentQIndex + 1;
+            document.getElementById('questionType').textContent = currentScenario.title;
+            document.getElementById('currentQuestion').textContent = question.text;
+            document.getElementById('questionSubtext').textContent = 'กรุณาตอบด้วยท่ามือ หรือกดปุ่มด้านล่าง';
+            
+            // (ในระบบจริง) อัปเดต Source ของวิดีโอ
+            // updateVideo(question.videoUrl);
+            
+            // เพิ่ม animation
+            document.getElementById('currentQuestion').parentElement.classList.add('fade-in');
+            setTimeout(() => {
+                document.getElementById('currentQuestion').parentElement.classList.remove('fade-in');
+            }, 300);
+        }
+
+        // Step 3: การโต้ตอบ (Interaction & Branching)
+        function handleAnswer(answer) {
+            // บันทึกคำตอบ
+            const question = currentScenario.questions[currentQIndex];
+            reportHistory.push({
+                questionId: question.id,
+                questionText: question.text,
+                answer: answer,
+                timestamp: new Date().toISOString()
+            });
+            
+            // บวกค่า index
+            currentQIndex++;
+            
+            // ตรวจสอบว่ายังมีคำถามอีกไหม
+            if (currentQIndex < currentScenario.questions.length) {
+                // ยังมีคำถาม: วนลูปต่อ
+                renderQuestion();
+            } else {
+                // หมดคำถาม: ไปสรุปผล
+                showSummary();
+            }
+            
+            updateCollectedInfo();
+        }
+
+        function answerYes() {
+            handleAnswer(true);
+        }
+
+        function answerNo() {
+            // ถ้ากดไม่ใช่ ให้ไปหน้าสอนภาษามือก่อน
+            showSignLanguageHelp();
+        }
+
+        function showSignLanguageHelp() {
+            const question = currentScenario.questions[currentQIndex];
+            
+            // สร้างหน้าสอนภาษามือแบบพิเศษสำหรับคำถามนี้
+            const helpHTML = `
+                <div class="bg-white rounded-2xl shadow-xl p-8 max-w-4xl mx-auto">
+                    <div class="text-center mb-8">
+                        <div class="w-20 h-20 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i class="fas fa-hands text-blue-600 text-3xl"></i>
+                        </div>
+                        <h2 class="text-3xl font-bold text-gray-900 mb-4">เรียนรู้ท่ามือสำหรับคำถามนี้</h2>
+                        <p class="text-gray-600 text-lg mb-2">คำถาม: "${question.text}"</p>
+                        <p class="text-gray-500">เรียนรู้ท่ามือ แล้วลองตอบคำถามใหม่อีกครั้ง</p>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+                        <!-- ท่ามือ "ใช่" -->
+                        <div class="bg-green-50 border-2 border-green-200 rounded-xl p-6">
+                            <div class="text-center mb-4">
+                                <div class="w-16 h-16 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-3">
+                                    <i class="fas fa-thumbs-up text-white text-2xl"></i>
+                                </div>
+                                <h3 class="text-xl font-bold text-green-800 mb-2">ท่ามือ "ใช่"</h3>
+                            </div>
+                            <div class="space-y-3">
+                                <div class="bg-white rounded-lg p-4">
+                                    <p class="text-sm font-medium text-gray-700 mb-2">วิธีทำ:</p>
+                                    <p class="text-sm text-gray-600">กำมือขึ้น หัวแม่มือชี้ขึ้น เหมือนกำลังจะให้คะแนน "Good"</p>
+                                </div>
+                                <div class="bg-yellow-50 rounded-lg p-4">
+                                    <p class="text-sm font-medium text-yellow-800 mb-2">💡 จุดสำคัญ:</p>
+                                    <ul class="text-sm text-gray-600 space-y-1">
+                                        <li>• หัวแม่มือชี้ขึ้นอย่างชัดเจน</li>
+                                        <li>• นิ้วอื่นๆ กำอยู่</li>
+                                        <li>• ทำท่ามือที่ระดับหน้าอก</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- ท่ามือ "ไม่ใช่" -->
+                        <div class="bg-red-50 border-2 border-red-200 rounded-xl p-6">
+                            <div class="text-center mb-4">
+                                <div class="w-16 h-16 bg-red-500 rounded-full flex items-center justify-center mx-auto mb-3">
+                                    <i class="fas fa-thumbs-down text-white text-2xl"></i>
+                                </div>
+                                <h3 class="text-xl font-bold text-red-800 mb-2">ท่ามือ "ไม่ใช่"</h3>
+                            </div>
+                            <div class="space-y-3">
+                                <div class="bg-white rounded-lg p-4">
+                                    <p class="text-sm font-medium text-gray-700 mb-2">วิธีทำ:</p>
+                                    <p class="text-sm text-gray-600">กำมือลง หัวแม่มือชี้ลง เหมือนกำลังจะให้คะแนน "Not Good"</p>
+                                </div>
+                                <div class="bg-yellow-50 rounded-lg p-4">
+                                    <p class="text-sm font-medium text-yellow-800 mb-2">💡 จุดสำคัญ:</p>
+                                    <ul class="text-sm text-gray-600 space-y-1">
+                                        <li>• หัวแม่มือชี้ลงอย่างชัดเจน</li>
+                                        <li>• นิ้วอื่นๆ กำอยู่</li>
+                                        <li>• ทำท่ามือที่ระดับหน้าอก</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- วิดีโอตัวอย่าง (จำลอง) -->
+                    <div class="bg-gray-50 rounded-xl p-6 mb-8">
+                        <h4 class="font-bold text-gray-900 mb-4 text-center">📹 วิดีโอตัวอย่าง</h4>
+                        <div class="bg-black rounded-lg aspect-video flex items-center justify-center">
+                            <div class="text-center text-white">
+                                <i class="fas fa-play-circle text-6xl mb-3 opacity-50"></i>
+                                <p class="text-sm opacity-70">วิดีโอสอนท่ามือ "ใช่" และ "ไม่ใช่"</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- ปุ่มดำเนินการ -->
+                    <div class="flex justify-center gap-4">
+                        <button onclick="practiceAnswer('yes')" class="bg-green-500 text-white px-8 py-3 rounded-xl font-bold hover:bg-green-600 transition">
+                            <i class="fas fa-thumbs-up mr-2"></i> ฉันพร้อมตอบ "ใช่"
+                        </button>
+                        <button onclick="practiceAnswer('no')" class="bg-red-500 text-white px-8 py-3 rounded-xl font-bold hover:bg-red-600 transition">
+                            <i class="fas fa-thumbs-down mr-2"></i> ฉันพร้อมตอบ "ไม่ใช่"
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            // แสดงหน้าสอนภาษามือ
+            document.getElementById('interviewScreen').classList.add('hidden');
+            document.getElementById('signHelpScreen').classList.remove('hidden');
+            document.getElementById('signHelpScreen').innerHTML = helpHTML;
+        }
+
+        function practiceAnswer(answer) {
+            // กลับไปหน้าสัมภาษณ์
+            document.getElementById('signHelpScreen').classList.add('hidden');
+            document.getElementById('interviewScreen').classList.remove('hidden');
+            
+            // บันทึกคำตอบที่เลือก (แปลง string เป็น boolean)
+            const booleanAnswer = (answer === 'yes');
+            handleAnswer(booleanAnswer);
+        }
+
+        function showExplanation() {
+            const question = currentScenario.questions[currentQIndex];
+            
+            // อัปเดตหน้าอธิบาย
+            document.getElementById('explanationTitle').textContent = 'อธิบายท่ามือ';
+            document.getElementById('explanationText').textContent = question.explain;
+            
+            // ซ่อนหน้าคำถาม แสดงหน้าอธิบาย
+            document.getElementById('view-question').classList.add('hidden');
+            document.getElementById('view-explanation').classList.remove('hidden');
+        }
+
+        function hideExplanation() {
+            // กลับมาหน้าคำถาม
+            document.getElementById('view-explanation').classList.add('hidden');
+            document.getElementById('view-question').classList.remove('hidden');
+        }
+
+        function showHelp() {
+            // ซ่อนหน้าสัมภาษณ์และหน้าสอนภาษามือ (ถ้ากำลังแสดง)
+            document.getElementById('interviewScreen').classList.add('hidden');
+            document.getElementById('signHelpScreen').classList.add('hidden');
+            
+            // แสดง help modal
+            document.getElementById('helpModal').classList.remove('hidden');
+        }
+
+        function closeHelp() {
+            // ปิด help modal
+            document.getElementById('helpModal').classList.add('hidden');
+            
+            // กลับไปหน้าเดิม (สัมภาษณ์ หรือ สอนภาษามือ)
+            if (document.getElementById('signHelpScreen').classList.contains('hidden')) {
+                // ถ้าหน้าสอนภาษามือซ่อนอยู่ ให้กลับไปหน้าสัมภาษณ์
+                document.getElementById('interviewScreen').classList.remove('hidden');
+            } else {
+                // ถ้าหน้าสอนภาษามือกำลังแสดง ให้แสดงต่อ
+                document.getElementById('signHelpScreen').classList.remove('hidden');
+            }
+        }
+
+        // Step 4: การสรุปผล (Summary Generation)
+        function showSummary() {
+            // เปลี่ยนหน้าจอไปสรุป
+            document.getElementById('interviewScreen').classList.add('hidden');
+            document.getElementById('summaryScreen').classList.remove('hidden');
+            
+            // สร้าง HTML สรุป
+            let summaryHTML = `
+                <div class="space-y-3">
+                    <div class="flex justify-between py-2 border-b">
+                        <span class="font-bold">ประเภทเหตุการณ์:</span>
+                        <span>${currentScenario.title}</span>
+                    </div>
+                    <div class="flex justify-between py-2 border-b">
+                        <span class="font-bold">เวลาแจ้ง:</span>
+                        <span>${new Date().toLocaleString('th-TH')}</span>
+                    </div>
+            `;
+            
+            // Loop ข้อมูลจาก reportHistory มาสร้างรายการ
+            reportHistory.forEach(item => {
+                const answerText = item.answer ? 'ใช่' : 'ไม่ใช่';
+                const answerColor = item.answer ? 'text-green-600' : 'text-red-600';
+                summaryHTML += `
+                    <div class="flex justify-between py-2 border-b">
+                        <span class="font-bold">${item.questionText}:</span>
+                        <span class="${answerColor} font-bold">${answerText}</span>
+                    </div>
+                `;
+            });
+            
+            summaryHTML += '</div>';
+            document.getElementById('reportContent').innerHTML = summaryHTML;
+        }
+
+        function updateCollectedInfo() {
+            const infoDiv = document.getElementById('collectedInfo');
+            let infoHTML = '';
+            
+            infoHTML += `<div class="flex items-center gap-2"><span class="font-bold">ประเภท:</span> ${currentScenario.title}</div>`;
+            
+            reportHistory.forEach(item => {
+                const answerText = item.answer ? 'ใช่' : 'ไม่ใช่';
+                const answerColor = item.answer ? 'text-green-600' : 'text-red-600';
+                infoHTML += `<div class="flex items-center gap-2"><span class="font-bold">${item.questionText}:</span> <span class="${answerColor} font-bold">${answerText}</span></div>`;
+            });
+            
+            infoDiv.innerHTML = infoHTML || '<div class="text-gray-500">ยังไม่มีข้อมูล...</div>';
+        }
+
+        // Helper Functions
+        function startInterview() {
+            // แสดงหน้าเลือกประเภทเหตุการณ์
+            showScenarioSelection();
+        }
+
+        function showScenarioSelection() {
+            const selectionHTML = Object.entries(SCENARIOS).map(([key, scenario]) => `
+                <button onclick="startReport('${key}')" class="bg-white border-2 border-gray-200 rounded-xl p-6 hover:border-police-red hover:bg-red-50 transition text-center group">
+                    <div class="w-16 h-16 mx-auto bg-${scenario.color}-100 rounded-full flex items-center justify-center text-${scenario.color}-600 mb-4 group-hover:bg-${scenario.color}-200 transition">
+                        <i class="fas ${scenario.icon} text-2xl"></i>
+                    </div>
+                    <h3 class="font-bold text-gray-900 mb-2">${scenario.title}</h3>
+                    <p class="text-sm text-gray-500">คำถาม ${scenario.questions.length} ข้อ</p>
+                </button>
+            `).join('');
+            
+            document.getElementById('startScreen').innerHTML = `
+                <div class="bg-white rounded-2xl shadow-xl p-8">
+                    <h1 class="text-3xl font-bold text-gray-900 mb-6 text-center">เลือกประเภทเหตุการณ์</h1>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        ${selectionHTML}
+                    </div>
+                    <div class="mt-8 text-center">
+                        <button onclick="location.reload()" class="text-gray-500 hover:text-gray-700">
+                            <i class="fas fa-arrow-left mr-2"></i> กลับหน้าหลัก
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function editReport() {
+            // กลับไปหน้าเลือกประเภทเหตุการณ์
+            document.getElementById('summaryScreen').classList.add('hidden');
+            document.getElementById('startScreen').classList.remove('hidden');
+            
+            // รีเซ็ตข้อมูลทั้งหมด
+            currentScenario = null;
+            currentQIndex = 0;
+            reportHistory = [];
+            
+            // แสดงหน้าเลือกประเภทใหม่
+            showScenarioSelection();
+        }
+
+        function submitReport() {
+            const reportData = {
+                scenario: currentScenario.title,
+                answers: reportHistory,
+                timestamp: new Date().toISOString(),
+                status: 'submitted'
+            };
+            
+            console.log('Submitting report:', reportData);
+            
+            // ในระบบจริง: ส่งข้อมูลไป Server
+            // fetch('/api/reports', { method: 'POST', body: JSON.stringify(reportData) })
+            
+            alert('ส่งใบแจ้งความเรียบร้อยแล้ว! เจ้าหน้าที่ตำรวจจะดำเนินการต่อไป');
+            window.location.href = 'index.html';
+        }
+
+        function exitInterview() {
+            if (confirm('คุณต้องการออกจากการสัมภาษณ์ใช่ไหม? ข้อมูลที่กรอกไปจะไม่ถูกบันทึก')) {
+                window.location.href = 'index.html';
+            }
+        }
+
+        function callEmergency(number) {
+            if (confirm(`คุณต้องการโทรหมายเลข ${number} ใช่ไหม?`)) {
+                window.location.href = `tel:${number}`;
+            }
+        }
+    </script>
+</body>
+</html>

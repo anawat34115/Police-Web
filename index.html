@@ -52,6 +52,9 @@
             <nav class="hidden md:flex items-center gap-1">
                 <button onclick="showPage('landing')" class="px-4 py-2 text-sm font-bold text-gray-700 hover:text-police-red rounded-lg hover:bg-red-50 transition">หน้าหลัก</button>
                 <button onclick="showPage('dictionary')" class="px-4 py-2 text-sm font-bold text-gray-700 hover:text-police-red rounded-lg hover:bg-red-50 transition">คลังคำศัพท์ (Web)</button>
+                <a href="interview.html" class="px-4 py-2 text-sm font-bold text-white bg-police-red hover:bg-red-800 rounded-lg transition shadow-md">
+                    <i class="fas fa-video mr-1"></i> แจ้งความออนไลน์
+                </a>
                 <button onclick="showPage('manual')" class="px-4 py-2 text-sm font-bold text-gray-700 hover:text-police-red rounded-lg hover:bg-red-50 transition">คู่มือการใช้งาน</button>
                 <a href="#download" class="ml-2 bg-police-red text-white px-5 py-2 rounded-full text-sm font-bold hover:bg-red-800 transition shadow-md">
                     <i class="fa-solid fa-download mr-1"></i> ดาวน์โหลดแอป
@@ -67,6 +70,9 @@
             <div class="container mx-auto px-6 py-4 space-y-2">
                 <button onclick="showPage('landing'); toggleMobileMenu()" class="block w-full text-left px-4 py-3 text-sm font-bold text-gray-700 hover:text-police-red hover:bg-red-50 rounded-lg transition">หน้าหลัก</button>
                 <button onclick="showPage('dictionary'); toggleMobileMenu()" class="block w-full text-left px-4 py-3 text-sm font-bold text-gray-700 hover:text-police-red hover:bg-red-50 rounded-lg transition">คลังคำศัพท์ (Web)</button>
+                <a href="interview.html" class="block w-full text-left px-4 py-3 text-sm font-bold text-white bg-police-red hover:bg-red-800 rounded-lg transition">
+                    <i class="fas fa-video mr-1"></i> แจ้งความออนไลน์
+                </a>
                 <button onclick="showPage('manual'); toggleMobileMenu()" class="block w-full text-left px-4 py-3 text-sm font-bold text-gray-700 hover:text-police-red hover:bg-red-50 rounded-lg transition">คู่มือการใช้งาน</button>
                 <a href="https://apps.apple.com" target="_blank" class="block w-full text-left ml-2 bg-police-red text-white px-5 py-3 rounded-full text-sm font-bold hover:bg-red-800 transition shadow-md">
                     <i class="fa-solid fa-download mr-1"></i> ดาวน์โหลดแอป
@@ -92,13 +98,20 @@
                         เปิดใช้งานอย่างเป็นทางการ
                     </div>
                     <h1 class="text-4xl lg:text-6xl font-extrabold text-gray-900 mb-6 leading-tight">
-                        ช่องทางแจ้งความ<br>
+                        แจ้งความ<br>
                         <span class="text-police-red">สำหรับผู้พิการทางการได้ยิน</span>
                     </h1>
                     <p class="text-lg text-gray-500 mb-8 leading-relaxed">
                         แอปพลิเคชัน Police Care เชื่อมต่อท่านกับเจ้าหน้าที่ตำรวจและล่ามภาษามือได้ทันที รองรับการแจ้งเหตุฉุกเฉิน แจ้งความออนไลน์ และขอความช่วยเหลือ 24 ชั่วโมง
                     </p>
                     <div class="flex flex-wrap gap-4" id="download">
+                        <a href="interview.html" class="bg-police-red text-white px-6 py-3 rounded-xl flex items-center gap-3 hover:bg-red-800 transition shadow-lg w-full sm:w-auto justify-center">
+                            <i class="fas fa-video text-xl"></i>
+                            <div class="text-left leading-tight">
+                                <span class="text-[10px] block opacity-70">เริ่มใช้งาน</span>
+                                <span class="font-bold">แจ้งความออนไลน์ออนไลน์</span>
+                            </div>
+                        </a>
                         <a href="https://apps.apple.com" target="_blank" class="bg-gray-900 text-white px-6 py-3 rounded-xl flex items-center gap-3 hover:bg-black transition shadow-lg w-full sm:w-auto justify-center">
                             <i class="fa-brands fa-apple text-2xl"></i>
                             <div class="text-left leading-tight">
@@ -116,8 +129,43 @@
                     </div>
                 </div>
 
-                <div class="lg:w-1/2 flex justify-center">
-                    <img src="unnamed.png" alt="Police Care App Icon" class="w-52 h-52 rounded-full shadow-2xl object-contain">
+                <div class="lg:w-1/2 relative flex justify-center">
+                    <div class="absolute inset-0 bg-red-600 blur-[100px] opacity-5 rounded-full"></div>
+                    <!-- App Screenshot Mockup -->
+                    <div class="relative w-72 h-[550px] bg-gray-900 rounded-[3rem] border-8 border-gray-800 shadow-2xl overflow-hidden">
+                        <div class="bg-white h-full w-full flex flex-col">
+                            <!-- Header in App -->
+                            <div class="bg-police-red p-6 text-white pt-10 rounded-b-3xl shadow-md z-10">
+                                <h3 class="font-bold text-lg">แจ้งเหตุ (Report)</h3>
+                                <p class="text-xs text-red-100">เลือกประเภทเหตุการณ์</p>
+                            </div>
+                            <!-- App Content Mock -->
+                            <div class="p-4 grid grid-cols-2 gap-3 overflow-y-auto">
+                                <div class="bg-red-50 p-4 rounded-xl flex flex-col items-center justify-center text-center aspect-square">
+                                    <i class="fa-solid fa-video text-2xl text-police-red mb-2"></i>
+                                    <span class="text-xs font-bold text-gray-700">ล่าม TTRS</span>
+                                </div>
+                                <div class="bg-gray-50 p-4 rounded-xl flex flex-col items-center justify-center text-center aspect-square">
+                                    <i class="fa-solid fa-car-burst text-2xl text-blue-600 mb-2"></i>
+                                    <span class="text-xs font-bold text-gray-700">รถชน</span>
+                                </div>
+                                <div class="bg-gray-50 p-4 rounded-xl flex flex-col items-center justify-center text-center aspect-square">
+                                    <i class="fa-solid fa-mask text-2xl text-gray-600 mb-2"></i>
+                                    <span class="text-xs font-bold text-gray-700">ลักทรัพย์</span>
+                                </div>
+                                <div class="bg-gray-50 p-4 rounded-xl flex flex-col items-center justify-center text-center aspect-square">
+                                    <i class="fa-solid fa-fire text-2xl text-orange-500 mb-2"></i>
+                                    <span class="text-xs font-bold text-gray-700">ไฟไหม้</span>
+                                </div>
+                            </div>
+                            <!-- Bottom Nav in App -->
+                            <div class="mt-auto bg-white border-t p-4 flex justify-between px-8 text-gray-300 text-xl">
+                                <i class="fa-solid fa-house text-police-red"></i>
+                                <i class="fa-solid fa-list"></i>
+                                <i class="fa-solid fa-user"></i>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </section>
@@ -136,6 +184,56 @@
                     <button onclick="showPage('dictionary')" class="bg-white border-2 border-police-red text-police-red px-8 py-3 rounded-xl font-bold hover:bg-police-red hover:text-white transition">
                         เข้าใช้งานคลังคำศัพท์บนเว็บ
                     </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Auto Interview Teaser -->
+        <section class="py-16 bg-gradient-to-br from-red-50 to-gray-50 border-t border-gray-100">
+            <div class="container mx-auto px-6 flex flex-col md:flex-row-reverse items-center gap-10">
+                <div class="md:w-1/2">
+                    <div class="relative">
+                        <div class="absolute inset-0 bg-police-red blur-[80px] opacity-10 rounded-full"></div>
+                        <div class="relative bg-white rounded-2xl shadow-xl p-6 border border-gray-100">
+                            <div class="flex items-center gap-3 mb-4">
+                                <div class="w-12 h-12 bg-police-red rounded-full flex items-center justify-center">
+                                    <i class="fas fa-video text-white text-xl"></i>
+                                </div>
+                                <div>
+                                    <h3 class="font-bold text-gray-900">ระบบแจ้งความออนไลน์</h3>
+                                    <p class="text-sm text-gray-500">AI Interview System</p>
+                                </div>
+                            </div>
+                            <div class="space-y-3">
+                                <div class="flex items-center gap-3 p-3 bg-green-50 rounded-lg">
+                                    <i class="fas fa-check-circle text-green-600"></i>
+                                    <span class="text-sm font-medium">คำถามแบบวิดีโอภาษามือ</span>
+                                </div>
+                                <div class="flex items-center gap-3 p-3 bg-blue-50 rounded-lg">
+                                    <i class="fas fa-hands text-blue-600"></i>
+                                    <span class="text-sm font-medium">ตอบด้วยท่ามือง่ายๆ</span>
+                                </div>
+                                <div class="flex items-center gap-3 p-3 bg-purple-50 rounded-lg">
+                                    <i class="fas fa-file-alt text-purple-600"></i>
+                                    <span class="text-sm font-medium">สร้างใบแจ้งความอัตโนมัติ</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="md:w-1/2">
+                    <h2 class="text-3xl font-bold text-gray-900 mb-4">แจ้งความสำหรับผู้พิการทางการได้ยิน</h2>
+                    <p class="text-gray-500 mb-6">
+                        ระบบใหม่! แจ้งความอัตโนมัติ ตอบคำถามด้วยท่ามือ และรับใบแจ้งความทันที ไม่ต้องพิมพ์ข้อความ
+                    </p>
+                    <div class="flex flex-wrap gap-4">
+                        <a href="interview.html" class="bg-police-red text-white px-8 py-3 rounded-xl font-bold hover:bg-red-800 transition shadow-lg">
+                            <i class="fas fa-play mr-2"></i> เริ่มสัมภาษณ์เลย
+                        </a>
+                        <button onclick="showPage('dictionary')" class="bg-white border-2 border-gray-300 text-gray-700 px-8 py-3 rounded-xl font-bold hover:border-police-red hover:text-police-red transition">
+                            <i class="fas fa-book mr-2"></i> เรียนรู้ท่ามือ
+                        </button>
+                    </div>
                 </div>
             </div>
         </section>
@@ -641,42 +739,6 @@
                 console.error('Error switching page:', error);
                 alert('เกิดข้อผิดพลาดในการเปลี่ยนหน้า กรุณาลองใหม่อีกครั้ง');
             }
-        }
-
-        function callEmergency(number) {
-            if (confirm(`คุณต้องการโทรหมายเลข ${number} ใช่ไหม?`)) {
-                window.location.href = `tel:${number}`;
-            }
-        }
-
-        function callTTRS() {
-            if (confirm('คุณต้องการโทรหมายเลข 1414 สำหรับบริการล่ามภาษามือใช่ไหม?')) {
-                window.location.href = 'tel:1414';
-            }
-        }
-
-        function startSignLanguageReport() {
-            alert('ฟีเจอร์บันทึกวิดีโอภาษามือจะเปิดใช้งานในเวอร์ชันถัดไป');
-        }
-
-        function shareLocation() {
-            if (navigator.share) {
-                navigator.share({
-                    title: 'ตำแหน่งฉุกเฉิน',
-                    text: 'กรุณาช่วยเหลือหรือที่ตำแหน่งปัจจุบัน',
-                    url: window.location.href
-                });
-            } else {
-                alert('เบราว์เซอร์ของคุณไม่รองรับบริการแชร์ตำแหน่ง');
-            }
-        }
-
-        function addPhoto() {
-            alert('ฟีเจอร์ถ่ายรูปและอัปโหลดรูปภาพจะเปิดใช้งานในเวอร์ชันถัดไป');
-        }
-
-        function contactInterpreter() {
-            callTTRS();
         }
 
         // Init
