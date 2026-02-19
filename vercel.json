@@ -17,9 +17,9 @@
     }
   ],
   "env": {
-    "DB_HOST": "@mysql_host",
-    "DB_NAME": "@mysql_database", 
-    "DB_USER": "@mysql_user",
-    "DB_PASSWORD": "@mysql_password"
+    "DB_HOST": "your-mysql-host.com",
+    "DB_NAME": "police_care_interview", 
+    "DB_USER": "root",
+    "DB_PASSWORD": "123"
   }
 }
