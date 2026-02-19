@@ -1,0 +1,25 @@
+{
+  "version": 2,
+  "builds": [
+    {
+      "src": "api/index.php",
+      "use": "@vercel/php"
+    }
+  ],
+  "routes": [
+    {
+      "src": "api/index.php",
+      "dest": "/api"
+    },
+    {
+      "src": "public",
+      "dest": "/"
+    }
+  ],
+  "env": {
+    "DB_HOST": "@mysql_host",
+    "DB_NAME": "@mysql_database", 
+    "DB_USER": "@mysql_user",
+    "DB_PASSWORD": "@mysql_password"
+  }
+}
