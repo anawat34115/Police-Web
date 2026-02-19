@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Police Care - ระบบสัมภาษณ์อัตโนมัติ v3.0 Production</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { font-family: 'Sarabun', sans-serif; }
+        .bg-police-red { background-color: #8B0000; }
+        .text-police-red { color: #8B0000; }
+        .fade-in { animation: fadeIn 0.3s ease-in; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .pulse-help { animation: pulse 2s infinite; }
+        @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
+        .loading-spinner { border: 3px solid #f3f3f3; border-top: 3px solid #8B0000; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen flex flex-col">
+    <!-- Header -->
+    <header class="bg-white shadow-md border-t-4 border-police-red sticky top-0 z-50">
+        <div class="container mx-auto px-6 py-4 flex justify-between items-center">
+            <div class="flex items-center gap-3">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/8f/Emblem_of_the_Royal_Thai_Police.svg/1200px-Emblem_of_the_Royal_Thai_Police.svg.png" alt="RTP" class="h-10 w-auto">
+                <div>
+                    <span class="font-extrabold text-police-red text-lg">POLICE CARE</span>
+                    <span class="text-[10px] text-gray-500 font-bold">INTERVIEW SYSTEM v3.0</span>
+                </div>
+            </div>
+            <div class="flex items-center gap-4">
+                <div id="connectionStatus" class="flex items-center gap-2 text-sm">
+                    <div class="w-2 h-2 bg-green-500 rounded-full"></div>
+                    <span class="text-gray-600">Online</span>
+                </div>
+                <button onclick="app.exit()" class="text-gray-500 hover:text-red-600 transition">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main id="appContainer" class="flex-grow container mx-auto px-6 py-8">
+        <!-- Loading Screen -->
+        <div id="loadingScreen" class="flex items-center justify-center min-h-[60vh]">
+            <div class="text-center">
+                <div class="loading-spinner mx-auto mb-4"></div>
+                <p class="text-gray-600">กำลังเชื่อมต่อระบบ...</p>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white py-6 mt-8">
+        <div class="container mx-auto px-6 text-center">
+            <p class="text-sm">© 2024 Royal Thai Police - Police Care Interview System</p>
+            <p class="text-xs text-gray-400 mt-2">Production Version v3.0 | All Rights Reserved</p>
+        </div>
+    </footer>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="fixed bottom-4 right-4 hidden z-50">
+        <div class="bg-white rounded-lg shadow-lg p-4 flex items-center gap-3 min-w-[300px]">
+            <div id="toastIcon"></div>
+            <div>
+                <p id="toastTitle" class="font-semibold"></p>
+                <p id="toastMessage" class="text-sm text-gray-600"></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Production App -->
+    <script src="js/production-app.js"></script>
+</body>
+</html>

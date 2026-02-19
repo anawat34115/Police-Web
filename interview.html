@@ -309,8 +309,12 @@
                     </div>
                 </div>
                 
-                <!-- Action Buttons -->
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                // Action Buttons -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <button onclick="clearAllData()" class="bg-gray-200 text-gray-700 py-4 rounded-xl font-bold hover:bg-gray-300 transition">
+                        <i class="fas fa-trash-alt mr-2"></i>
+                        ลบข้อมูลทั้งหมด
+                    </button>
                     <button onclick="editReport()" class="bg-gray-200 text-gray-700 py-4 rounded-xl font-bold hover:bg-gray-300 transition">
                         <i class="fas fa-edit mr-2"></i>
                         แก้ไขข้อมูล
@@ -800,6 +804,23 @@
                     </div>
                 </div>
             `;
+        }
+
+        function clearAllData() {
+            // ยืนยันการลบข้อมูล
+            if (confirm('คุณต้องการลบข้อมูลทั้งหมดใช่ไหม? ข้อมูลที่กรอกไปจะหายไปทั้งหมด')) {
+                // รีเซ็ตข้อมูลทั้งหมด
+                currentScenario = null;
+                currentQIndex = 0;
+                reportHistory = [];
+                
+                // กลับไปหน้าเริ่มต้น
+                document.getElementById('summaryScreen').classList.add('hidden');
+                document.getElementById('startScreen').classList.remove('hidden');
+                
+                // แสดงหน้าเลือกประเภทใหม่
+                showScenarioSelection();
+            }
         }
 
         function editReport() {

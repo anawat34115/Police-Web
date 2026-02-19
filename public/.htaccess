@@ -1,0 +1,18 @@
+# Police Care Interview System - Public Directory .htaccess
+RewriteEngine On
+
+# Skip rewrite for debug files
+RewriteRule ^debug_api\.php$ - [L]
+
+# API Routes - Redirect to api/index.php
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^api/(.*)$ api/index.php [QSA,L]
+
+# Handle static files directly
+RewriteCond %{REQUEST_FILENAME} -f [OR]
+RewriteCond %{REQUEST_FILENAME} -d
+RewriteRule ^ - [L]
+
+# Default to index.html for all other requests
+RewriteRule ^(.*)$ index.html [QSA,L]

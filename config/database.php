@@ -1,0 +1,177 @@
+<?php
+/**
+ * Database Configuration - Police Care Interview System
+ * Production-ready database configuration
+ */
+
+class Database {
+    private $host = 'localhost';
+    private $db_name = 'police_care_interview';
+    private $username = 'root';
+    private $password = '';
+    private $charset = 'utf8mb4';
+    
+    public $conn;
+    
+    public function getConnection() {
+        $this->conn = null;
+        
+        try {
+            $dsn = "mysql:host=" . $this->host . ";dbname=" . $this->db_name . ";charset=" . $this->charset;
+            $this->conn = new PDO($dsn, $this->username, $this->password);
+            $this->conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+            $this->conn->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
+            $this->conn->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
+            
+            // Set timezone
+            date_default_timezone_set('Asia/Bangkok');
+            
+        } catch(PDOException $exception) {
+            echo "Connection error: " . $exception->getMessage();
+        }
+        
+        return $this->conn;
+    }
+    
+    // Initialize database tables
+    public function initialize() {
+        $conn = $this->getConnection();
+        
+        // Create reports table
+        $sql_reports = "
+            CREATE TABLE IF NOT EXISTS reports (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                report_id VARCHAR(50) UNIQUE NOT NULL,
+                scenario_type VARCHAR(100) NOT NULL,
+                scenario_title VARCHAR(255) NOT NULL,
+                status ENUM('draft', 'submitted', 'processing', 'completed', 'cancelled') DEFAULT 'draft',
+                user_info JSON,
+                location JSON,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                submitted_at TIMESTAMP NULL,
+                INDEX idx_status (status),
+                INDEX idx_created_at (created_at),
+                INDEX idx_report_id (report_id)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+        ";
+        
+        // Create report_answers table
+        $sql_answers = "
+            CREATE TABLE IF NOT EXISTS report_answers (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                report_id VARCHAR(50) NOT NULL,
+                question_id INT NOT NULL,
+                question_text TEXT NOT NULL,
+                answer BOOLEAN NOT NULL,
+                answer_text VARCHAR(10) NOT NULL,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (report_id) REFERENCES reports(report_id) ON DELETE CASCADE,
+                INDEX idx_report_id (report_id),
+                INDEX idx_question_id (question_id)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+        ";
+        
+        // Create scenarios table
+        $sql_scenarios = "
+            CREATE TABLE IF NOT EXISTS scenarios (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                scenario_key VARCHAR(50) UNIQUE NOT NULL,
+                title VARCHAR(255) NOT NULL,
+                icon VARCHAR(100) NOT NULL,
+                color VARCHAR(50) NOT NULL,
+                description TEXT,
+                is_active BOOLEAN DEFAULT TRUE,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                INDEX idx_scenario_key (scenario_key),
+                INDEX idx_is_active (is_active)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+        ";
+        
+        // Create questions table
+        $sql_questions = "
+            CREATE TABLE IF NOT EXISTS questions (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                scenario_key VARCHAR(50) NOT NULL,
+                question_number INT NOT NULL,
+                question_text TEXT NOT NULL,
+                explanation TEXT,
+                video_url VARCHAR(500),
+                is_active BOOLEAN DEFAULT TRUE,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                FOREIGN KEY (scenario_key) REFERENCES scenarios(scenario_key) ON DELETE CASCADE,
+                UNIQUE KEY unique_scenario_question (scenario_key, question_number),
+                INDEX idx_scenario_key (scenario_key),
+                INDEX idx_question_number (question_number)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+        ";
+        
+        // Create audit log table
+        $sql_audit = "
+            CREATE TABLE IF NOT EXISTS audit_log (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                report_id VARCHAR(50),
+                action VARCHAR(100) NOT NULL,
+                details JSON,
+                ip_address VARCHAR(45),
+                user_agent TEXT,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                INDEX idx_report_id (report_id),
+                INDEX idx_action (action),
+                INDEX idx_created_at (created_at)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+        ";
+        
+        try {
+            $conn->exec($sql_reports);
+            $conn->exec($sql_answers);
+            $conn->exec($sql_scenarios);
+            $conn->exec($sql_questions);
+            $conn->exec($sql_audit);
+            
+            // Insert default scenarios if empty
+            $this->insertDefaultScenarios();
+            
+            return true;
+        } catch(PDOException $exception) {
+            echo "Database initialization error: " . $exception->getMessage();
+            return false;
+        }
+    }
+    
+    // Insert default scenarios
+    private function insertDefaultScenarios() {
+        $conn = $this->getConnection();
+        
+        $scenarios = [
+            ['theft', 'แจ้งเหตุลักทรัพย์', 'fa-mask', 'orange', 'รายงานเหตุการณ์ที่เกี่ยวข้องกับการลักทรัพย์'],
+            ['accident', 'อุบัติเหตุรถชน', 'fa-car-burst', 'blue', 'รายงานอุบัติเหตุทางรถยนต์'],
+            ['assault', 'การทำร้ายร่างกาย', 'fa-user-injured', 'red', 'รายงานเหตุการณ์ทำร้ายร่างกาย'],
+            ['fire', 'ไฟไหม้', 'fa-fire', 'red', 'รายงานเหตุการณ์ไฟไหม้'],
+            ['missing', 'บุคคลสูญหาย', 'fa-person-walking', 'purple', 'รายงานบุคคลสูญหาย']
+        ];
+        
+        foreach ($scenarios as $scenario) {
+            $sql = "INSERT IGNORE INTO scenarios (scenario_key, title, icon, color, description) VALUES (?, ?, ?, ?, ?)";
+            $stmt = $conn->prepare($sql);
+            $stmt->execute($scenario);
+        }
+        
+        // Insert default questions for theft scenario
+        $theft_questions = [
+            [1, "คุณเห็นหน้าคนร้ายไหม?", "ท่ามือ: ชี้ไปที่ตา แล้วทำท่ามองหา", "videos/theft/saw_suspect.mp4"],
+            [2, "มีกล้องวงจรปิดไหม?", "ท่ามือ: ทำท่ากล้องวงจรด้วยนิ้วมือ", "videos/theft/has_cctv.mp4"],
+            [3, "มีผู้บาดเจ็บไหม?", "ท่ามือ: ทำท่าบาดเจ็บ จับบริเวณที่เจ็บ", "videos/theft/is_injured.mp4"],
+            [4, "คนร้ายใช้อาวุธไหม?", "ท่ามือ: ทำท่าถืออาวุธ หรือทำท่าขู่อีกฝ่าย", "videos/theft/weapon_used.mp4"]
+        ];
+        
+        foreach ($theft_questions as $question) {
+            $sql = "INSERT IGNORE INTO questions (scenario_key, question_number, question_text, explanation, video_url) VALUES ('theft', ?, ?, ?, ?)";
+            $stmt = $conn->prepare($sql);
+            $stmt->execute($question);
+        }
+    }
+}
+?>
